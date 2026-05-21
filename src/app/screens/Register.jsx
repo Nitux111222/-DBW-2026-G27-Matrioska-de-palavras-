@@ -26,30 +26,49 @@ export function Register() {
     }
   };
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    const newErrors = {};
+  const handleRegister = async (e) => {
+  e.preventDefault();
+  const newErrors = {};
 
-    if (!formData.username) newErrors.username = "Obrigatório";
-    if (!formData.email) newErrors.email = "Obrigatório";
-    if (!formData.password) newErrors.password = "Obrigatório";
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "As passwords não coincidem";
-    }
+  if (!formData.username) newErrors.username = "Obrigatório";
+  if (!formData.email) newErrors.email = "Obrigatório";
+  if (!formData.password) newErrors.password = "Obrigatório";
+  if (formData.password !== formData.confirmPassword) {
+    newErrors.confirmPassword = "As passwords não coincidem";
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Conta criada com sucesso!");
-      navigate("/dashboard");
-    }, 1000);
-  };
+  try {
+    const res = await fetch("http://localhost:3000/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error);
+
+    toast.success("Conta criada com sucesso!");
+    navigate("/login");
+  } catch (err) {
+    toast.error(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">

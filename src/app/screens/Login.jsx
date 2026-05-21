@@ -13,28 +13,44 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+  e.preventDefault();
 
-    if (!username || !password) {
-      setError("Por favor preenche todos os campos.");
-      return;
+  if (!username || !password) {
+    setError("Preenche tudo");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const res = await fetch("http://localhost:3000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error);
     }
 
-    setIsLoading(true);
-    setError("");
+    toast.success("Login feito!");
+    localStorage.setItem("user", JSON.stringify(data.user));
+    navigate("/dashboard");
 
-    setTimeout(() => {
-      setIsLoading(false);
-
-      if (username === "admin" && password === "admin") {
-        toast.success("Bem-vindo de volta!");
-        navigate("/dashboard");
-      } else {
-        setError("Credenciais incorretas. Tenta admin/admin para testar.");
-      }
-    }, 800);
-  };
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">

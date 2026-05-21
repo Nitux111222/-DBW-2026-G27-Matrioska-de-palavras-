@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainLayout } from "../layouts/Layouts";
 import { Button } from "../components/ui/Button";
@@ -18,7 +19,35 @@ const performanceData = [
   { id: '7', name: 'Dom', pontos: 780 },
 ];
 
+
 export function Dashboard() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+
+      if (!storedUser) return;
+
+      const res = await fetch(`http://localhost:3000/api/user/${storedUser.id}`);
+      
+      if (!res.ok) {
+        console.error(await res.text());
+        return;
+      }
+
+    const data = await res.json();
+    setUser(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchUser();
+}, []);
+
   const navigate = useNavigate();
 
   return (
@@ -48,17 +77,17 @@ export function Dashboard() {
                   />
                 </div>
                 <div className="text-center mb-6">
-                  <h2 className="text-xl font-bold text-slate-900">joaossilva</h2>
+                  <h2 className="text-xl font-bold text-slate-900">{user?.username}</h2>
                   <p className="text-sm text-slate-500">Mestre da Matrioska Nível 4</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                    <div className="text-2xl font-bold text-blue-800">12.4k</div>
+                    <div className="text-2xl font-bold text-blue-800">{user?.pontosTotais || 0}</div>
                     <div className="text-xs text-slate-500 uppercase font-semibold mt-1">Pontos Totais</div>
                   </div>
                   <div className="bg-amber-50 rounded-lg p-3 border border-amber-100">
-                    <div className="text-2xl font-bold text-amber-600">840</div>
+                    <div className="text-2xl font-bold text-amber-600">{user?.recorde || 0}</div>
                     <div className="text-xs text-slate-500 uppercase font-semibold mt-1">Recorde</div>
                   </div>
                 </div>
@@ -88,7 +117,7 @@ export function Dashboard() {
           <div className="flex-1 flex flex-col gap-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">Olá, João! 👋</h1>
+                <h1 className="text-3xl font-bold text-slate-900">Olá, {user?.username}! 👋</h1>
                 <p className="text-slate-600 mt-1">Pronto para mais um desafio de palavras?</p>
               </div>
             </div>
@@ -102,7 +131,7 @@ export function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-500">Respostas Corretas</p>
-                    <h4 className="text-2xl font-bold text-slate-900">1,245</h4>
+                    <h4 className="text-2xl font-bold text-slate-900">{user?.respostasCorretas || 0}</h4>
                   </div>
                 </CardContent>
               </Card>
@@ -114,7 +143,7 @@ export function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-500">Erros / Inválidas</p>
-                    <h4 className="text-2xl font-bold text-slate-900">238</h4>
+                    <h4 className="text-2xl font-bold text-slate-900">{user?.respostasErradas || 0}</h4>
                   </div>
                 </CardContent>
               </Card>
@@ -126,7 +155,7 @@ export function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-500">Tempo de Jogo</p>
-                    <h4 className="text-2xl font-bold text-slate-900">14h 20m</h4>
+                    <h4 className="text-2xl font-bold text-slate-900">{user?.tempoJogo || 0}</h4>
                   </div>
                 </CardContent>
               </Card>
@@ -138,7 +167,7 @@ export function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-500">Partidas Ganhas</p>
-                    <h4 className="text-2xl font-bold text-slate-900">42</h4>
+                    <h4 className="text-2xl font-bold text-slate-900">{user?.jogosGanhos || 0}</h4>
                   </div>
                 </CardContent>
               </Card>

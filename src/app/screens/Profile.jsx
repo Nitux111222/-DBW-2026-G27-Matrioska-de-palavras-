@@ -7,15 +7,75 @@ import { Avatar } from "../components/ui/avatarRadix";
 import { Save, LogOut, Camera, Trophy, Clock, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 export function Profile() {
   const navigate = useNavigate();
 
-  const handleSave = () => {
-    toast.success("Perfil atualizado com sucesso!");
+  const [user, setUser] = useState(null);
+  const [Pnome, setPnome] = useState("");
+  const [Unome, setUnome] = useState("");
+  const [username, setUsername] = useState("");
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser) return;
+
+    const res = await fetch(`http://localhost:3000/api/user/${storedUser.id}`);
+    const data = await res.json();
+
+    setUser(data);
+    setUsername(data.username);
+    setPnome(data.Pnome);
+    setUnome(data.Unome);
   };
 
+  fetchUser();
+}, []);
+
+  const handleSave = async () => {
+  try {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    const res = await fetch(`http://localhost:3000/api/user/${storedUser.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        Pnome: Pnome,
+        Unome: Unome,
+        currentPassword,
+        newPassword
+      }),
+    });
+
+    const updatedUser = await res.json();
+
+    setUser(updatedUser);
+
+    localStorage.setItem("user", JSON.stringify({
+      ...storedUser,
+      username: updatedUser.username
+    }));
+
+    toast.success("Perfil atualizado com sucesso!");
+
+    navigate("/dashboard");
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao atualizar");
+  }
+};
+
   const handleLogout = () => {
+    localStorage.removeItem("user"); 
     navigate("/");
     toast.success("Sessão terminada");
   };
@@ -39,7 +99,7 @@ export function Profile() {
                     <Camera className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">joaossilva</h3>
+                <h3 className="text-xl font-bold text-slate-900">{Pnome} {Unome}</h3>
                 <p className="text-sm text-slate-500 mb-4">Membro desde Out. 2025</p>
                 
                 <div className="w-full flex items-center justify-center gap-2 bg-blue-50 text-blue-800 py-2 rounded-lg font-semibold text-sm border border-blue-100">
@@ -63,16 +123,16 @@ export function Profile() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Nome Próprio</label>
-                    <Input defaultValue="João" />
+                    <Input value={Pnome} onChange={(e) => setPnome(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Apelido</label>
-                    <Input defaultValue="Silva" />
+                    <Input value={Unome} onChange={(e) => setUnome(e.target.value)} />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Nome de Utilizador</label>
-                  <Input defaultValue="joaossilva" />
+                  <Input value={username} onChange={(e) => setUsername(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Email Académico</label>
@@ -89,16 +149,16 @@ export function Profile() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Palavra-passe Atual</label>
-                  <Input type="password" placeholder="••••••••" />
+                  <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Nova Palavra-passe</label>
-                    <Input type="password" />
+                    <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Confirmar Nova</label>
-                    <Input type="password" />
+                    <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                   </div>
                 </div>
               </CardContent>

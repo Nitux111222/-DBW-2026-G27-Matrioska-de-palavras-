@@ -1,17 +1,18 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Avatar } from "../components/ui/avatarRadix";
 import { Layers } from "lucide-react";
 
 export function MainLayout({ children, isAuthenticated = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
       <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-blue-800">
+          <Link to={location.pathname === "/" ? "/" : "/dashboard"} className="flex items-center gap-2 text-blue-800">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -47,6 +48,7 @@ export function MainLayout({ children, isAuthenticated = false }) {
                   src="https://images.unsplash.com/photo-1544717305-2782549b5136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwcG9ydHJhaXR8ZW58MXx8fHwxNzczMjE4NzU0fDA&ixlib=rb-4.1.0&q=80&w=1080"
                   size="md"
                   className="border-2 border-slate-200"
+                  onClick={() => navigate("/profile")}
                 />
               </div>
             ) : (
