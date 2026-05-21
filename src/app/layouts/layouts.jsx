@@ -1,10 +1,17 @@
-import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Avatar } from "../components/ui/avatarRadix";
 import { Layers } from "lucide-react";
+import React, { useState, useEffect } from "react";
 
-export function MainLayout({ children, isAuthenticated = false }) {
+export function MainLayout({ children }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setIsAuthenticated(!!user);
+  }, []);
+  
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -42,13 +49,12 @@ export function MainLayout({ children, isAuthenticated = false }) {
             {isAuthenticated ? (
               <div
                 className="cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/profile")}
               >
                 <Avatar
                   src="https://images.unsplash.com/photo-1544717305-2782549b5136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwcG9ydHJhaXR8ZW58MXx8fHwxNzczMjE4NzU0fDA&ixlib=rb-4.1.0&q=80&w=1080"
                   size="md"
                   className="border-2 border-slate-200"
-                  onClick={() => navigate("/profile")}
                 />
               </div>
             ) : (
